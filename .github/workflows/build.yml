@@ -1,4 +1,4 @@
-name: Build Release APK (Unsigned/Test)
+name: Build and Upload APK
 
 on:
   push:
@@ -10,31 +10,43 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: コードの取得
+      # 1. リポジトリのチェックアウト
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Java 17のセットアップ
+      # 2. Javaのセットアップ
+      - name: Setup Java
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Flutterのセットアップ
+      # 3. Flutterのセットアップ
+      - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
           cache: true
 
-      - name: パッケージ取得
+      # ★【核心部分】android/ フォルダがなければその場で自動生成するステップ
+      - name: Create scaffold if missing
+        run: |
+          if [ ! -d android ]; then
+            flutter create --platforms=android .
+          fi
+
+      # 4. 依存関係のインストール
+      - name: Install dependencies
         run: flutter pub get
 
-      # ReleaseモードでAPKをビルドコマンドを実行
-      - name: Release APKのビルド
+      # 5. Release APKのビルド
+      - name: Build release APK
         run: flutter build apk --release
 
-      # ビルドされたRelease用APKをArtifactsにアップロード
-      - name: Artifactsへ保存
+      # 6. Artifacts にアップロードしてダウンロード可能にする
+      - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: app-release-apk
+          name: app-release
           path: build/app/outputs/flutter-apk/app-release.apk
+          retention-days: 7
