@@ -1,52 +1,61 @@
-name: Build and Upload APK
+name: Build and Release APK
 
 on:
   push:
     branches: [ main ]
   workflow_dispatch:
 
+permissions:
+  contents: write  # GitHub Releasesにファイルを書き込む（アップロードする）権限
+
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. リポジトリのチェックアウト
+      # 1. コードのチェックアウト
       - name: Checkout
         uses: actions/checkout@v4
 
-      # 2. Javaのセットアップ
+      # 2. Java のセットアップ
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: '17'
 
-      # 3. Flutterのセットアップ
+      # 3. Flutter のセットアップ
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
           cache: true
 
-      # android/ フォルダがなければその場で自動生成するステップ
+      # 4. android/ フォルダがなければ自動生成
       - name: Create scaffold if missing
         run: |
           if [ ! -d android ]; then
             flutter create --platforms=android .
           fi
 
-      # 4. 依存関係のインストール
+      # 5. パッケージの取得
       - name: Install dependencies
         run: flutter pub get
 
-      # 5. Release APKのビルド
+      # 6. Release APK のビルド
       - name: Build release APK
         run: flutter build apk --release
 
-      # 6. Artifacts にアップロードしてダウンロード可能にする
-      - name: Upload APK Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: app-release
-          path: build/app/outputs/flutter-apk/app-release.apk
-          retention-days: 7
+      # 7. GitHub Releases に .apk ファイルを直接公開
+      - name: Publish APK to GitHub Releases
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # アプリ名を指定してビルドされたAPKをコピー
+          cp build/app/outputs/flutter-apk/app-release.apk my-app-build-${{ github.run_number }}.apk
+          
+          # Releases タグを作成して .apk を直接アップロード
+          gh release create "v1.0.${{ github.run_number }}" \
+            "my-app-build-${{ github.run_number }}.apk" \
+            --title "Release v1.0.${{ github.run_number }}" \
+            --notes "Automated build from commit ${{ github.sha }}"
