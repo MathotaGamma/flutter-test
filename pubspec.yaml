@@ -1,0 +1,30 @@
+# アプリの内部的な識別名（小文字の英数字とアンダースコアのみ）
+name: Flutter Test App
+
+# アプリの簡単な説明テキスト
+description: "Test Flutter Application"
+
+# pub.dev への誤公開を防ぐ設定
+publish_to: 'none'
+
+# アプリのバージョン記述（[バージョン名]+[ビルド番号]）
+# APKを出力する際のバージョン指定になります
+version: 1.0.0+1
+
+# 動作対象とするDart SDKのバージョン範囲
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+# アプリ本体で使う外部ライブラリ
+dependencies:
+  flutter:
+    sdk: flutter
+
+# 開発・テスト時のみ使うライブラリ
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+# Flutter固有の設定（画像やフォントのロード指定など）
+flutter:
+  uses-material-design: true
