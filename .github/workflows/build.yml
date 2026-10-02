@@ -28,7 +28,7 @@ jobs:
           channel: 'stable'
           cache: true
 
-      # ★【核心部分】android/ フォルダがなければその場で自動生成するステップ
+      # android/ フォルダがなければその場で自動生成するステップ
       - name: Create scaffold if missing
         run: |
           if [ ! -d android ]; then
