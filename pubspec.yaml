@@ -1,5 +1,5 @@
 # アプリの内部的な識別名（小文字の英数字とアンダースコアのみ）
-name: Flutter Test App
+name: flutter_test_app
 
 # アプリの簡単な説明テキスト
 description: "Test Flutter Application"
